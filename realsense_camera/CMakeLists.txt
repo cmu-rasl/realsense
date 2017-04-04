@@ -31,7 +31,13 @@ set(REALSENSE_CATKIN_BASED_DEPS
 )
 
 if(USE_SYSTEM_LIBREALSENSE)
-  find_package(realsense REQUIRED)
+  #@KSS- BAD hack. I'm just going to include the lib and include files
+  #directly
+  #ifind_package(realsense REQUIRED)
+  set(librealsense_INCLUDE_DIRS "/usr/include/librealsense")
+  set(librealsense_LIB_DIRS "/usr/lib")
+  find_library(librealsense_LIBS NAMES realsense PATHS "${librealsense_LIB_DIRS}")
+
 else()
   list(APPEND REALSENSE_CATKIN_BASED_DEPS librealsense)
 endif()
@@ -95,6 +101,7 @@ endif()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${librealsense_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}_nodelet src/base_nodelet.cpp src/sync_nodelet.cpp src/r200_nodelet.cpp src/f200_nodelet.cpp src/sr300_nodelet.cpp
@@ -108,7 +115,9 @@ add_dependencies(${PROJECT_NAME}_nodelet ${catkin_EXPORTED_TARGETS})
 add_executable(get_debug_info src/get_debug_info.cpp)
 target_link_libraries(get_debug_info ${catkin_LIBRARIES})
 if(USE_SYSTEM_LIBREALSENSE)
-  target_link_libraries(get_debug_info PRIVATE realsense::realsense)
+  #Continue KSS hack
+  #target_link_libraries(get_debug_info PRIVATE realsense::realsense)
+  target_link_libraries(get_debug_info PRIVATE ${realsense_LIBS})
 endif()
 
 if (CATKIN_ENABLE_TESTING)
